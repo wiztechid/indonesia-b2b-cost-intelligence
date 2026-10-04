@@ -87,5 +87,24 @@ class ProductMapperTests(unittest.TestCase):
         out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
         self.assertIn("RECURRING_AMOUNT_MISSING",out["reasonCodes"])
 
+    def test_same_provider_reason_is_evidence_based(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v1"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("SAME_PROVIDER",out["reasonCodes"])
+
+    def test_same_revision_reason_is_evidence_based(self):
+        a=complete(quote("A","v1",revision="rev-shared"))
+        b=complete(quote("B","v2",revision="rev-shared"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("SAME_EVIDENCE_REVISION",out["reasonCodes"])
+
+    def test_cross_currency_missing_fx_provenance_blocks(self):
+        a=complete(quote("A","v1",currency="IDR"))
+        b=complete(quote("B","v2",currency="USD",fx=None))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("FX_PROVENANCE_MISSING",out["reasonCodes"])
+        self.assertEqual(out["costState"],"BLOCKED")
+        self.assertTrue(out["suppressPairwiseNumbers"])
+
 if __name__=="__main__":
     unittest.main()
