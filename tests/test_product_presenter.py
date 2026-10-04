@@ -76,5 +76,24 @@ class PresenterTests(unittest.TestCase):
         self.assertEqual(by_pair[("A","C")]["costState"],"BLOCKED")
         self.assertIsNone(by_pair[("A","C")]["costs"])
 
+    def test_invalid_currency_rejected_by_canonical_schema(self):
+        calls=[]
+        def spy(a,b,d):
+            calls.append(1); return compare(a,b,d)
+        bad=complete(quote("A","v1",currency="idr"))
+        good=complete(quote("B","v2"))
+        with self.assertRaises(Exception): present_matrix([bad,good],spy,"2026-10-04")
+        self.assertEqual(calls,[])
+
+    def test_empty_deliverables_rejected_by_canonical_schema(self):
+        bad=complete(quote("A","v1",included=[]))
+        good=complete(quote("B","v2"))
+        with self.assertRaises(Exception): present_matrix([bad,good],compare,"2026-10-04")
+
+    def test_extra_root_field_rejected_by_canonical_schema(self):
+        bad=complete(quote("A","v1")); bad["inventedField"]=True
+        good=complete(quote("B","v2"))
+        with self.assertRaises(Exception): present_matrix([bad,good],compare,"2026-10-04")
+
 if __name__=="__main__":
     unittest.main()
