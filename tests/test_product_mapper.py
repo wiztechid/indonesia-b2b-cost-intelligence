@@ -1,6 +1,6 @@
 import unittest
 from engine.quote_compare import compare
-from product.mapper import map_pair
+from product.mapper import map_pair, component_price, component_separation_reason
 from tests.fixtures.quotes import quote
 
 def complete(q):
@@ -105,6 +105,18 @@ class ProductMapperTests(unittest.TestCase):
         self.assertIn("FX_PROVENANCE_MISSING",out["reasonCodes"])
         self.assertEqual(out["costState"],"BLOCKED")
         self.assertTrue(out["suppressPairwiseNumbers"])
+
+    def test_bundle_component_missing_explicit_price_is_blocked(self):
+        q=complete(quote("A","v1"))
+        q["componentPrices"]={"pentest":{"amount":5000000,"evidenceState":"derived"}}
+        self.assertIsNone(component_price(q,"pentest"))
+        self.assertEqual(component_separation_reason(q,"pentest"),"COMPONENT_PRICE_MISSING")
+
+    def test_bundle_component_explicit_quote_is_separable(self):
+        q=complete(quote("A","v1"))
+        q["componentPrices"]={"pentest":{"amount":5000000,"evidenceState":"explicit_quote"}}
+        self.assertEqual(component_price(q,"pentest"),5000000)
+        self.assertIsNone(component_separation_reason(q,"pentest"))
 
 if __name__=="__main__":
     unittest.main()
