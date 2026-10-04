@@ -38,3 +38,7 @@ Engine numeric fields are raw/derived quote facts, not permission to compare the
 
 ## Reason-code completeness gate
 Every non-COMPARABLE scope state, BLOCKED cost state, STALE/UNKNOWN freshness state, and material difference must have at least one deterministic reason code. Empty reason-code output in any such state is a product error and must fail closed.
+
+
+## Mapper evidence boundary
+The deterministic mapper may emit a reason code only when the supplied quote records or engine result prove that condition. It must not infer FX failure, provider independence, revision identity, or bundled-component state when those facts are absent from its input contract. Unsupported reasons remain reserved until their evidence is wired into the mapper.
