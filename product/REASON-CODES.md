@@ -1,0 +1,25 @@
+# Product Reason Codes v0.7
+
+Stable machine-readable reasons for the product layer.
+
+- DIFFERENT_SERVICE_TYPE
+- EMPTY_SCOPE
+- NO_COMMON_DELIVERABLES
+- INCLUDED_SCOPE_DIFFERS
+- EXCLUSIONS_DIFFER
+- QUANTITY_LIMITS_DIFFER
+- SLA_DIFFERS
+- AMOUNT_SEMANTICS_UNKNOWN
+- TAX_UNKNOWN
+- TRAVEL_UNKNOWN
+- COMPARISON_DATE_MISSING
+- QUOTE_STALE
+- FX_PROVENANCE_MISSING
+- COMPONENT_PRICE_MISSING
+- SAME_PROVIDER
+- SAME_EVIDENCE_REVISION
+
+Rules:
+- Codes explain state; they never score vendor quality.
+- Multiple codes may apply.
+- UI copy may localize labels, but stored reason codes remain stable.
