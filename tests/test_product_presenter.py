@@ -22,7 +22,7 @@ class PresenterTests(unittest.TestCase):
         self.assertEqual(view["costState"],"COMPARABLE")
         self.assertEqual(view["costs"],[12000000,12000000])
 
-    def test_cross_currency_engine_true_still_hides_numbers(self):
+    def test_cross_currency_is_blocked_and_hides_numbers(self):
         fx1={"targetCurrency":"IDR","rate":1,"rateDate":"2026-10-04","source":"ref"}
         fx2={"targetCurrency":"IDR","rate":16000,"rateDate":"2026-10-04","source":"ref"}
         a=complete(quote("A","v1",currency="IDR",fx=fx1))
@@ -94,6 +94,18 @@ class PresenterTests(unittest.TestCase):
         bad=complete(quote("A","v1")); bad["inventedField"]=True
         good=complete(quote("B","v2"))
         with self.assertRaises(Exception): present_matrix([bad,good],compare,"2026-10-04")
+
+    def test_unknown_validity_flows_to_unknown_blocked_without_numbers(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v2"))
+        a["validUntil"]=None
+        b["validUntil"]="2026-12-31"
+        raw=compare(a,b,"2026-10-04")
+        view=present_pair(a,b,raw,"2026-10-04")
+        self.assertEqual(view["freshnessState"],"UNKNOWN")
+        self.assertEqual(view["costState"],"BLOCKED")
+        self.assertIn("FRESHNESS_NOT_EVALUATED",view["reasonCodes"])
+        self.assertIsNone(view["costs"])
+        self.assertIsNone(view["annualizedRunRates"])
 
 if __name__=="__main__":
     unittest.main()

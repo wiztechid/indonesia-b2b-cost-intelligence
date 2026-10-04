@@ -10,13 +10,13 @@ def annualized_run_rate(amount: Optional[float], cadence: str):
     return None
 
 def contract_recurring_cost(amount: Optional[float], cadence: str, term_months: Optional[int]):
+    if cadence=="none": return 0
     if amount is None or term_months is None: return None
     if cadence=="monthly": return amount*term_months
     if cadence=="quarterly":
         return amount*(term_months/3) if term_months % 3 == 0 else None
     if cadence=="annual":
         return amount*(term_months/12) if term_months % 12 == 0 else None
-    if cadence=="none": return 0
     return None
 
 def normalized_costs(q):
@@ -61,7 +61,14 @@ def compare(a,b,comparison_date=None):
     )
     ca,cb=normalized_costs(a),normalized_costs(b)
     commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
-    freshness_ok=None if comparison_date is None else (not is_stale(a,comparison_date) and not is_stale(b,comparison_date))
+    if comparison_date is None:
+        freshness_ok=None
+    else:
+        validities=(a.get("validUntil"),b.get("validUntil"))
+        if None in validities:
+            freshness_ok=None
+        else:
+            freshness_ok=all(valid >= comparison_date for valid in validities)
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,

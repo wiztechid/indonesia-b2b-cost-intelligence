@@ -140,5 +140,37 @@ class QuoteEngineTests(unittest.TestCase):
         self.assertFalse(r["costComparable"])
         self.assertIsNone(r["freshnessComparable"])
 
+    def test_missing_valid_until_is_unknown_and_blocks_current_cost(self):
+        a=quote("A","v1"); b=quote("B","v2")
+        a["commercial"]["taxState"]=b["commercial"]["taxState"]="included"
+        a["commercial"]["travelState"]=b["commercial"]["travelState"]="not_applicable"
+        a["validUntil"]=None
+        b["validUntil"]="2026-12-31"
+        result=compare(a,b,"2026-10-04")
+        self.assertIsNone(result["freshnessComparable"])
+        self.assertFalse(result["costComparable"])
+
+    def test_explicit_current_validity_remains_current(self):
+        a=quote("A","v1"); b=quote("B","v2")
+        for q in (a,b):
+            q["commercial"]["taxState"]="included"
+            q["commercial"]["travelState"]="not_applicable"
+            q["validUntil"]="2026-12-31"
+        result=compare(a,b,"2026-10-04")
+        self.assertTrue(result["freshnessComparable"])
+        self.assertTrue(result["costComparable"])
+
+    def test_setup_only_components_need_no_recurring_amount_or_term(self):
+        q=quote("A","v1")
+        q["commercial"].update({
+            "totalAmount":None,
+            "setupAmount":7500000,
+            "recurringAmount":None,
+            "recurringCadence":"none",
+            "termMonths":None,
+            "amountSemantics":"components_only"
+        })
+        self.assertEqual(normalized_total(q),7500000)
+
 if __name__=="__main__":
     unittest.main()
