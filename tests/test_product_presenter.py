@@ -44,5 +44,37 @@ class PresenterTests(unittest.TestCase):
         qs=[complete(quote(str(i),f"v{i}")) for i in range(6)]
         with self.assertRaises(ValueError): present_matrix(qs,compare,"2026-10-04")
 
+    def test_duplicate_quote_ids_rejected_before_pairing(self):
+        a=complete(quote("A","v1")); b=complete(quote("A","v2"))
+        with self.assertRaises(ValueError): present_matrix([a,b],compare,"2026-10-04")
+
+    def test_direct_self_id_pair_rejected(self):
+        a=complete(quote("A","v1")); b=complete(quote("A","v2"))
+        with self.assertRaises(ValueError): present_pair(a,b,{"state":"COMPARABLE","costComparable":True},"2026-10-04")
+
+    def test_malformed_quote_rejected_before_engine(self):
+        calls=[]
+        def spy(a,b,d):
+            calls.append(1); return compare(a,b,d)
+        bad=complete(quote("A","v1")); del bad["scope"]
+        good=complete(quote("B","v2"))
+        with self.assertRaises(ValueError): present_matrix([bad,good],spy,"2026-10-04")
+        self.assertEqual(calls,[])
+
+    def test_pair_order_is_deterministic_input_order(self):
+        qs=[complete(quote(x,"v"+x)) for x in ["C","A","B"]]
+        view=present_matrix(qs,compare,"2026-10-04")
+        self.assertEqual([p["quoteIds"] for p in view["pairs"]],[["C","A"],["C","B"],["A","B"]])
+
+    def test_one_blocked_pair_does_not_hide_other_pairs(self):
+        qs=[complete(quote("A","v1")),complete(quote("B","v2")),complete(quote("C","v3"))]
+        qs[2]["commercial"]["taxState"]="unknown"
+        view=present_matrix(qs,compare,"2026-10-04")
+        by_pair={tuple(p["quoteIds"]):p for p in view["pairs"]}
+        self.assertEqual(by_pair[("A","B")]["costState"],"COMPARABLE")
+        self.assertIsNotNone(by_pair[("A","B")]["costs"])
+        self.assertEqual(by_pair[("A","C")]["costState"],"BLOCKED")
+        self.assertIsNone(by_pair[("A","C")]["costs"])
+
 if __name__=="__main__":
     unittest.main()
