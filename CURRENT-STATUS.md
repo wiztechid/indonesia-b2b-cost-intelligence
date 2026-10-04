@@ -24,9 +24,17 @@ PDP/privacy compliance + security procurement cost.
 - Exact effective-date representation remains evidence-controlled; do not hard-code calculator obligations from secondary summaries.
 
 ## Build state
-Repository bootstrap v0.1.
-No production calculator formula approved.
-No market price range approved without evidence ledger.
+- Evidence, regulatory-truth, and price-integrity layers established.
+- Buyer-intelligence RFQ, quote normalization, comparability, and evidence-coverage contracts established.
+- Deterministic Python quote comparison reference engine established and adversarially tested.
+- Product mapper/presenter boundary established; blocked pairwise comparisons suppress numeric output.
+- Runtime/API boundary v0.9 is FROZEN on main with stable error codes and a golden presenter-safe response fixture.
+- CI runs the full unittest suite on Python 3.11 and 3.12.
+- No production PDP calculator formula approved.
+- No public market price range approved because the evidence threshold remains unmet.
 
 ## Next
-Build evidence ledger schema, regulatory-state contract, cannibalization ownership map, and PDP calculator input/output contract before article drafting.
+1. Keep engine, presenter, and runtime v0.9 frozen unless a demonstrated regression requires repair.
+2. Define the v1.0 deployment decision record: Python service reusing the reference implementation versus a JavaScript parity implementation for static hosting.
+3. If JavaScript parity is chosen, require golden-fixture parity before any public UI can consume it.
+4. Do not build public numeric PDP calculator output until the evidence threshold is satisfied.
