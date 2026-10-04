@@ -109,5 +109,36 @@ class QuoteEngineTests(unittest.TestCase):
         b["commercial"]["taxState"]="unknown"
         self.assertFalse(compare(a,b)["costComparable"])
 
+    def test_exclusion_difference_is_partial(self):
+        a,b=quote("A","v1"),quote("B","v2")
+        b["scope"]["deliverablesExcluded"]=["incident_response"]
+        self.assertEqual(compare(a,b)["state"],"PARTIALLY_COMPARABLE")
+
+    def test_sla_difference_is_partial(self):
+        a,b=quote("A","v1"),quote("B","v2")
+        a["scope"]["sla"]={"responseHours":4}
+        b["scope"]["sla"]={"responseHours":24}
+        self.assertEqual(compare(a,b)["state"],"PARTIALLY_COMPARABLE")
+
+    def test_expired_quote_blocks_current_cost_comparison(self):
+        a,b=quote("A","v1"),quote("B","v2")
+        for q in (a,b):
+            q["commercial"]["taxState"]="included"
+            q["commercial"]["travelState"]="not_applicable"
+        a["validUntil"]="2026-09-30"
+        b["validUntil"]="2026-12-31"
+        r=compare(a,b,comparison_date="2026-10-04")
+        self.assertFalse(r["costComparable"])
+        self.assertFalse(r["freshnessComparable"])
+
+    def test_missing_comparison_date_blocks_current_cost(self):
+        a,b=quote("A","v1",total=100),quote("B","v2",total=200)
+        for q in (a,b):
+            q["commercial"]["taxState"]="included"
+            q["commercial"]["travelState"]="not_applicable"
+        r=compare(a,b)
+        self.assertFalse(r["costComparable"])
+        self.assertIsNone(r["freshnessComparable"])
+
 if __name__=="__main__":
     unittest.main()

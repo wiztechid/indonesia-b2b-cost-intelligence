@@ -43,7 +43,7 @@ def normalized_costs(q):
 def normalized_total(q):
     return normalized_costs(q)["contractCost"]
 
-def compare(a,b):
+def compare(a,b,comparison_date=None):
     if a["serviceType"]!=b["serviceType"]:
         return {"state":"NON_COMPARABLE","reason":"different_service_type"}
     ai=set(a["scope"]["deliverablesIncluded"])
@@ -53,16 +53,23 @@ def compare(a,b):
     common=ai & bi
     if not common:
         return {"state":"NON_COMPARABLE","reason":"no_common_deliverables"}
-    same_scope=ai==bi and a["scope"]["quantityLimits"]==b["scope"]["quantityLimits"]
+    same_scope=(
+        ai==bi
+        and set(a["scope"].get("deliverablesExcluded",[]))==set(b["scope"].get("deliverablesExcluded",[]))
+        and a["scope"]["quantityLimits"]==b["scope"]["quantityLimits"]
+        and a["scope"].get("sla")==b["scope"].get("sla")
+    )
     ca,cb=normalized_costs(a),normalized_costs(b)
     commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
+    freshness_ok=None if comparison_date is None else (not is_stale(a,comparison_date) and not is_stale(b,comparison_date))
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,
         "commonDeliverables":sorted(common),
-        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None and commercial_ok,
+        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None and commercial_ok and freshness_ok is True,
         "contractCosts":[ca["contractCost"],cb["contractCost"]],
-        "annualizedRunRates":[ca["annualizedRunRate"],cb["annualizedRunRate"]]
+        "annualizedRunRates":[ca["annualizedRunRate"],cb["annualizedRunRate"]],
+        "freshnessComparable":freshness_ok
     }
 
 
