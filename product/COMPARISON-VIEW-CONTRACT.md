@@ -27,3 +27,14 @@ Every pair must expose:
 - STALE or UNKNOWN freshness blocks current-cost comparison.
 - Missing information is shown as an action request, not silently imputed.
 - Affiliate/sponsor/lead relationships are disclosed but do not alter comparison math.
+
+
+## Numeric suppression boundary
+Engine numeric fields are raw/derived quote facts, not permission to compare them.
+- If cost state is BLOCKED, pairwise cells MUST NOT render side-by-side contract cost, delta, percentage difference, rank, or cheaper/more-expensive language.
+- Individual quote detail may show its own stated amount with tax/travel/term/freshness context.
+- Pairwise numeric display is permitted only when costComparable=true.
+- Annualized run-rate must be labelled separately from contract commitment and must never substitute for blocked contract cost.
+
+## Reason-code completeness gate
+Every non-COMPARABLE scope state, BLOCKED cost state, STALE/UNKNOWN freshness state, and material difference must have at least one deterministic reason code. Empty reason-code output in any such state is a product error and must fail closed.
