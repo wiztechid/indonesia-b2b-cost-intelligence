@@ -86,3 +86,21 @@ def fx_amount(amount, source_currency, fx):
     if not fx.get("source") or not fx.get("rateDate") or not fx.get("rate"):
         return None
     return amount*fx["rate"]
+
+
+def commercial_disclosure(q):
+    return q.get("commercialRelationship","unknown")
+
+def commercial_terms_complete(q):
+    c=q["commercial"]
+    return c.get("taxState") not in (None,"unknown") and c.get("travelState") not in (None,"unknown")
+
+def comparable_cost_allowed(q):
+    return normalized_total(q) is not None and commercial_terms_complete(q)
+
+def component_cost(bundle, component):
+    components=bundle.get("componentPrices") or {}
+    return components.get(component)
+
+def bundled_component_separable(bundle, component):
+    return component_cost(bundle, component) is not None
