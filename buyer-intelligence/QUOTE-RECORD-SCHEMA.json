@@ -226,6 +226,34 @@
         }
       },
       "additionalProperties": false
+    },
+    "componentPrices": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "amount",
+          "evidenceState"
+        ],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "minimum": 0
+          },
+          "evidenceState": {
+            "enum": [
+              "explicit_quote",
+              "derived",
+              "allocated",
+              "unknown"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": false
