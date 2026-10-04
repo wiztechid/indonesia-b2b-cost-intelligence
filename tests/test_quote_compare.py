@@ -101,5 +101,13 @@ class QuoteEngineTests(unittest.TestCase):
         self.assertEqual(component_cost(bundle,"pentest"),5000000)
         self.assertTrue(bundled_component_separable(bundle,"pentest"))
 
+    def test_pairwise_unknown_tax_blocks_cost_flag(self):
+        a,b=quote("A","v1",total=100),quote("B","v2",total=200)
+        for q in (a,b):
+            q["commercial"]["taxState"]="included"
+            q["commercial"]["travelState"]="not_applicable"
+        b["commercial"]["taxState"]="unknown"
+        self.assertFalse(compare(a,b)["costComparable"])
+
 if __name__=="__main__":
     unittest.main()
