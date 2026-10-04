@@ -61,12 +61,12 @@ def compare(a,b,comparison_date=None):
     )
     ca,cb=normalized_costs(a),normalized_costs(b)
     commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
-    freshness_ok=True if comparison_date is None else (not is_stale(a,comparison_date) and not is_stale(b,comparison_date))
+    freshness_ok=None if comparison_date is None else (not is_stale(a,comparison_date) and not is_stale(b,comparison_date))
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,
         "commonDeliverables":sorted(common),
-        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None and commercial_ok and freshness_ok,
+        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None and commercial_ok and freshness_ok is True,
         "contractCosts":[ca["contractCost"],cb["contractCost"]],
         "annualizedRunRates":[ca["annualizedRunRate"],cb["annualizedRunRate"]],
         "freshnessComparable":freshness_ok
