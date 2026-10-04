@@ -126,5 +126,25 @@ class PresenterTests(unittest.TestCase):
         self.assertEqual(view["materialDifferences"],[])
         self.assertEqual(view["commonDeliverables"],["monthly_advice","policy_review"])
 
+    def test_relationship_disclosure_does_not_change_cost_math(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v2"))
+        a["commercialRelationship"]="sponsor"
+        raw=compare(a,b,"2026-10-04")
+        view=present_pair(a,b,raw,"2026-10-04")
+        self.assertTrue(raw["costComparable"])
+        self.assertEqual(view["costState"],"COMPARABLE")
+        self.assertEqual(view["costs"],[12000000,12000000])
+        self.assertEqual(view["commercialRelationships"][0]["relationship"],"sponsor")
+
+    def test_new_layers_do_not_bypass_numeric_suppression(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v2"))
+        a["commercial"]["taxState"]="unknown"
+        view=present_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertEqual(view["costState"],"BLOCKED")
+        self.assertIsNone(view["costs"])
+        self.assertIsNone(view["annualizedRunRates"])
+        self.assertIn("commonDeliverables",view)
+        self.assertIn("commercialRelationships",view)
+
 if __name__=="__main__":
     unittest.main()
