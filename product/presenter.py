@@ -19,8 +19,17 @@ def _validate_pair(a,b):
 def present_pair(a,b,engine_result,comparison_date=None):
     _validate_pair(a,b)
     mapped=map_pair(a,b,engine_result,comparison_date)
+    common_deliverables=sorted(set(a["scope"]["deliverablesIncluded"]) & set(b["scope"]["deliverablesIncluded"]))
+    material_codes={"INCLUDED_SCOPE_DIFFERS","EXCLUSIONS_DIFFER","QUANTITY_LIMITS_DIFFER","SLA_DIFFERS"}
+    material_differences=[code for code in mapped["reasonCodes"] if code in material_codes]
     view={
       "quoteIds":[a["quoteId"],b["quoteId"]],
+      "commonDeliverables":common_deliverables,
+      "materialDifferences":material_differences,
+      "commercialRelationships":[
+        {"quoteId":a["quoteId"],"relationship":a["commercialRelationship"]},
+        {"quoteId":b["quoteId"],"relationship":b["commercialRelationship"]}
+      ],
       "scopeState":mapped["scopeState"],
       "costState":mapped["costState"],
       "freshnessState":mapped["freshnessState"],
