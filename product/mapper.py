@@ -40,8 +40,21 @@ def _cost_reasons(q):
     if cadence=="annual" and term is not None and term%12: reasons.append("IRREGULAR_RECURRING_TERM")
     return reasons
 
+def _identity_fx_reasons(a,b):
+    reasons=[]
+    if a.get("providerKey")==b.get("providerKey"): reasons.append("SAME_PROVIDER")
+    if a.get("evidenceRevisionId") and a.get("evidenceRevisionId")==b.get("evidenceRevisionId"): reasons.append("SAME_EVIDENCE_REVISION")
+    currencies={a.get("currency"),b.get("currency")}
+    if len(currencies)>1:
+        for q in (a,b):
+            fx=q.get("fxNormalization")
+            if fx is None or not fx.get("source") or not fx.get("rateDate") or not fx.get("rate") or not fx.get("targetCurrency"):
+                reasons.append("FX_PROVENANCE_MISSING"); break
+    return reasons
+
 def map_pair(a,b,engine_result,comparison_date=None):
     reasons=_scope_reasons(a,b)
+    reasons.extend(_identity_fx_reasons(a,b))
     for q in (a,b):
         reasons.extend(_cost_reasons(q))
     freshness="UNKNOWN"
@@ -56,7 +69,8 @@ def map_pair(a,b,engine_result,comparison_date=None):
     if not engine_result.get("costComparable",False) and not any(r in reasons for r in (
         "COST_AMOUNT_MISSING","AMOUNT_SEMANTICS_UNKNOWN","TAX_UNKNOWN","TRAVEL_UNKNOWN",
         "IRREGULAR_RECURRING_TERM","COMPARISON_DATE_MISSING","QUOTE_STALE",
-        "SETUP_AMOUNT_MISSING","RECURRING_AMOUNT_MISSING","FRESHNESS_NOT_EVALUATED")):
+        "SETUP_AMOUNT_MISSING","RECURRING_AMOUNT_MISSING","FRESHNESS_NOT_EVALUATED",
+        "FX_PROVENANCE_MISSING")):
         reasons.append("COMMERCIAL_TERMS_INCOMPLETE")
     reasons=list(dict.fromkeys(reasons))
     prompts=[PROMPTS[r] for r in reasons if r in PROMPTS]
