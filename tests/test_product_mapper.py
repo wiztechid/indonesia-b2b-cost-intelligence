@@ -65,5 +65,27 @@ class ProductMapperTests(unittest.TestCase):
         out=map_pair(a,b,before,"2026-10-04")
         self.assertEqual(out["costState"],"COMPARABLE")
 
+    def test_early_return_does_not_claim_current_freshness(self):
+        a=complete(quote("A","v1",service="dpo_service"))
+        b=complete(quote("B","v2",service="dpia"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertEqual(out["scopeState"],"NON_COMPARABLE")
+        self.assertEqual(out["freshnessState"],"UNKNOWN")
+        self.assertIn("FRESHNESS_NOT_EVALUATED",out["reasonCodes"])
+
+    def test_components_only_missing_setup_has_specific_reason(self):
+        a=complete(quote("A","v1"))
+        b=complete(quote("B","v2",total=None,recurring=10,cadence="monthly",term=12,semantics="components_only"))
+        b["commercial"]["setupAmount"]=None
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertEqual(out["costState"],"BLOCKED")
+        self.assertIn("SETUP_AMOUNT_MISSING",out["reasonCodes"])
+
+    def test_components_only_missing_recurring_has_specific_reason(self):
+        a=complete(quote("A","v1"))
+        b=complete(quote("B","v2",total=None,recurring=None,cadence="monthly",term=12,semantics="components_only"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("RECURRING_AMOUNT_MISSING",out["reasonCodes"])
+
 if __name__=="__main__":
     unittest.main()
