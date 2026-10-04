@@ -20,7 +20,9 @@ Compare 2–5 PDP service quotations on normalized scope without declaring a uni
 6. calculate evidence coverage
 7. determine pairwise comparability
 8. expose trade-offs and missing information
-9. optionally compute comparable 12-month cost only where contract semantics permit
+9. validate amount semantics so total/setup/recurring components cannot be double-counted
+10. apply FX normalization only when source and target currencies differ and provenance is complete
+11. optionally compute comparable 12-month cost only where contract semantics permit
 
 ## Output states
 - COMPARABLE
@@ -55,3 +57,5 @@ Across quotes:
 - comparing training price to managed DPO service
 - hiding taxes/add-ons/exclusions
 - converting PARTIALLY_COMPARABLE into a single winner score
+- adding total + setup + recurring when amountSemantics does not authorize that composition
+- applying FX normalization when source currency already equals target currency
