@@ -56,6 +56,15 @@ def _identity_fx_reasons(a,b):
         else: reasons.append("CROSS_CURRENCY_NORMALIZATION_NOT_APPLIED")
     return reasons
 
+def component_price(q, component):
+    record=(q.get("componentPrices") or {}).get(component)
+    if not record or record.get("evidenceState")!="explicit_quote":
+        return None
+    return record.get("amount")
+
+def component_separation_reason(q, component):
+    return None if component_price(q,component) is not None else "COMPONENT_PRICE_MISSING"
+
 def map_pair(a,b,engine_result,comparison_date=None):
     reasons=_scope_reasons(a,b)
     reasons.extend(_identity_fx_reasons(a,b))
