@@ -1,4 +1,5 @@
 from product.mapper import map_pair
+from product.validation import validate_quote_record
 
 REQUIRED_RECORD_KEYS={"quoteId","providerKey","serviceType","quoteDate","currency","commercial","scope","evidenceRevisionId","commercialRelationship"}
 
@@ -9,6 +10,7 @@ def _validate_quote_shape(q):
     if not q["quoteId"]: raise ValueError("quoteId must be non-empty")
     if not isinstance(q["commercial"],dict) or not isinstance(q["scope"],dict):
         raise ValueError("commercial and scope must be objects")
+    validate_quote_record(q)
 
 def _validate_pair(a,b):
     _validate_quote_shape(a); _validate_quote_shape(b)
