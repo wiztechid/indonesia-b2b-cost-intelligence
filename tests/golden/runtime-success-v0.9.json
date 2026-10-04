@@ -1,0 +1,22 @@
+{
+  "request": {
+    "comparisonDate": "2026-10-04",
+    "quoteIds": ["A", "B"]
+  },
+  "expectedPair": {
+    "quoteIds": ["A", "B"],
+    "commonDeliverables": ["monthly_advice", "policy_review"],
+    "materialDifferences": [],
+    "commercialRelationships": [
+      {"quoteId": "A", "relationship": "none"},
+      {"quoteId": "B", "relationship": "none"}
+    ],
+    "scopeState": "COMPARABLE",
+    "costState": "COMPARABLE",
+    "freshnessState": "CURRENT",
+    "reasonCodes": [],
+    "missingInformationPrompts": [],
+    "costs": [12000000, 12000000],
+    "annualizedRunRates": [null, null]
+  }
+}
