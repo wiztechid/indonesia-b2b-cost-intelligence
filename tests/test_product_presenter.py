@@ -107,5 +107,24 @@ class PresenterTests(unittest.TestCase):
         self.assertIsNone(view["costs"])
         self.assertIsNone(view["annualizedRunRates"])
 
+    def test_presenter_exposes_required_v07_layers_without_inference(self):
+        a=complete(quote("A","v1",included=["policy_review","monthly_advice"]))
+        b=complete(quote("B","v2",included=["monthly_advice","incident_support"]))
+        a["commercialRelationship"]="affiliate"
+        raw=compare(a,b,"2026-10-04")
+        view=present_pair(a,b,raw,"2026-10-04")
+        self.assertEqual(view["commonDeliverables"],["monthly_advice"])
+        self.assertIn("INCLUDED_SCOPE_DIFFERS",view["materialDifferences"])
+        self.assertEqual(view["commercialRelationships"],[
+            {"quoteId":"A","relationship":"affiliate"},
+            {"quoteId":"B","relationship":"none"}
+        ])
+
+    def test_no_material_difference_is_empty_not_invented(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v2"))
+        view=present_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertEqual(view["materialDifferences"],[])
+        self.assertEqual(view["commonDeliverables"],["monthly_advice","policy_review"])
+
 if __name__=="__main__":
     unittest.main()
