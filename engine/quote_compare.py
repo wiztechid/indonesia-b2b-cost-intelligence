@@ -10,13 +10,13 @@ def annualized_run_rate(amount: Optional[float], cadence: str):
     return None
 
 def contract_recurring_cost(amount: Optional[float], cadence: str, term_months: Optional[int]):
+    if cadence=="none": return 0
     if amount is None or term_months is None: return None
     if cadence=="monthly": return amount*term_months
     if cadence=="quarterly":
         return amount*(term_months/3) if term_months % 3 == 0 else None
     if cadence=="annual":
         return amount*(term_months/12) if term_months % 12 == 0 else None
-    if cadence=="none": return 0
     return None
 
 def normalized_costs(q):
