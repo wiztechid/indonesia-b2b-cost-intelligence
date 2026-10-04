@@ -25,7 +25,7 @@ def present_pair(a,b,engine_result,comparison_date=None):
       "costState":mapped["costState"],
       "freshnessState":mapped["freshnessState"],
       "reasonCodes":mapped["reasonCodes"],
-      "missingInformationPrompts":mapped["missingInformationPrompts"],
+      "missingInformationPrompts":mapped["missingInformationPrompts"],\n      "commonDeliverables":engine_result.get("commonDeliverables",[]),\n      "materialDifferences":mapped["materialDifferences"],\n      "commercialRelationships":[a["commercialRelationship"],b["commercialRelationship"]],
       "costs":None,
       "annualizedRunRates":None
     }
