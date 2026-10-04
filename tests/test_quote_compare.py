@@ -1,5 +1,5 @@
 import unittest
-from engine.quote_compare import normalized_total, normalized_costs, compare
+from engine.quote_compare import normalized_total, normalized_costs, compare, is_stale, provider_independent, same_revision, fx_amount
 from tests.fixtures.quotes import quote
 
 class QuoteEngineTests(unittest.TestCase):
@@ -49,6 +49,29 @@ class QuoteEngineTests(unittest.TestCase):
     def test_pairwise_cost_flag_symmetry(self):
         a,b=quote("A","v1",total=100),quote("B","v2",total=200)
         self.assertEqual(compare(a,b)["costComparable"],compare(b,a)["costComparable"])
+
+    def test_stale_quote(self):
+        self.assertTrue(is_stale({"validUntil":"2026-09-30"},"2026-10-04"))
+
+    def test_same_provider_not_independent(self):
+        self.assertFalse(provider_independent({"providerKey":"v1"},{"providerKey":"v1"}))
+
+    def test_same_revision_detected(self):
+        self.assertTrue(same_revision({"evidenceRevisionId":"r1"},{"evidenceRevisionId":"r1"}))
+
+    def test_fx_same_currency_is_idempotent(self):
+        fx={"targetCurrency":"IDR","rate":17000,"rateDate":"2026-10-04","source":"reference"}
+        self.assertEqual(fx_amount(100,"IDR",fx),100)
+
+    def test_fx_requires_provenance(self):
+        fx={"targetCurrency":"IDR","rate":17000,"rateDate":"2026-10-04","source":""}
+        self.assertIsNone(fx_amount(100,"USD",fx))
+
+    def test_fx_converts_once(self):
+        fx={"targetCurrency":"IDR","rate":17000,"rateDate":"2026-10-04","source":"reference"}
+        converted=fx_amount(100,"USD",fx)
+        self.assertEqual(converted,1700000)
+        self.assertEqual(fx_amount(converted,"IDR",fx),1700000)
 
 if __name__=="__main__":
     unittest.main()
