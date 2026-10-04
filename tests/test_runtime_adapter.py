@@ -1,4 +1,6 @@
 import unittest
+import json
+from pathlib import Path
 from runtime.adapter import compare_request
 from tests.fixtures.quotes import quote
 
@@ -57,6 +59,12 @@ class RuntimeAdapterTests(unittest.TestCase):
     def test_same_request_produces_same_response(self):
         payload={"comparisonDate":"2026-10-04","quotes":[complete(quote("A","v1")),complete(quote("B","v2"))]}
         self.assertEqual(compare_request(payload),compare_request(payload))
+
+    def test_success_matches_golden_presenter_safe_shape(self):
+        golden=json.loads((Path(__file__).parent/"golden"/"runtime-success-v0.9.json").read_text(encoding="utf-8"))
+        result=compare_request({"comparisonDate":golden["request"]["comparisonDate"],"quotes":[complete(quote("A","v1")),complete(quote("B","v2"))]})
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["pairs"][0],golden["expectedPair"])
 
 if __name__=="__main__":
     unittest.main()
