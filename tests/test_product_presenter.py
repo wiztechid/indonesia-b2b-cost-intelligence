@@ -95,5 +95,17 @@ class PresenterTests(unittest.TestCase):
         good=complete(quote("B","v2"))
         with self.assertRaises(Exception): present_matrix([bad,good],compare,"2026-10-04")
 
+    def test_unknown_validity_flows_to_unknown_blocked_without_numbers(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v2"))
+        a["validUntil"]=None
+        b["validUntil"]="2026-12-31"
+        raw=compare(a,b,"2026-10-04")
+        view=present_pair(a,b,raw,"2026-10-04")
+        self.assertEqual(view["freshnessState"],"UNKNOWN")
+        self.assertEqual(view["costState"],"BLOCKED")
+        self.assertIn("FRESHNESS_NOT_EVALUATED",view["reasonCodes"])
+        self.assertIsNone(view["costs"])
+        self.assertIsNone(view["annualizedRunRates"])
+
 if __name__=="__main__":
     unittest.main()
