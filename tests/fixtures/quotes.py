@@ -5,7 +5,7 @@ def quote(qid, provider, service="dpo_service", included=None, total=12000000, r
         limits={}
     return {
       "quoteId":qid,"providerKey":provider,"serviceType":service,
-      "quoteDate":"2026-10-01","currency":currency,
+      "quoteDate":"2026-10-01","validUntil":"2026-12-31","currency":currency,
       "evidenceRevisionId":revision or ("rev-"+qid),
       "commercialRelationship":"none",
       "fxNormalization":fx,
