@@ -8,6 +8,8 @@ PROMPTS={
 "COMPONENT_PRICE_MISSING":"Request component-level pricing before separating a bundled service.",
 "QUANTITY_LIMITS_DIFFER":"Confirm comparable request/system/entity limits.",
 "COST_AMOUNT_MISSING":"Request the missing commercial amount before comparing cost.",
+"SETUP_AMOUNT_MISSING":"Confirm the setup amount before deriving component-only contract cost.",
+"RECURRING_AMOUNT_MISSING":"Confirm the recurring amount before deriving component-only contract cost.",
 "IRREGULAR_RECURRING_TERM":"Confirm billing cadence and contract term before deriving contract cost.",
 "COMMERCIAL_TERMS_INCOMPLETE":"Complete material commercial terms before comparing cost."
 }
@@ -28,6 +30,9 @@ def _cost_reasons(q):
     c=q["commercial"]; reasons=[]
     if c.get("amountSemantics")=="unknown": reasons.append("AMOUNT_SEMANTICS_UNKNOWN")
     if c.get("totalAmount") is None and c.get("amountSemantics")!="components_only": reasons.append("COST_AMOUNT_MISSING")
+    if c.get("amountSemantics")=="components_only":
+        if c.get("setupAmount") is None: reasons.append("SETUP_AMOUNT_MISSING")
+        if c.get("recurringCadence")!="none" and c.get("recurringAmount") is None: reasons.append("RECURRING_AMOUNT_MISSING")
     if c.get("taxState")=="unknown": reasons.append("TAX_UNKNOWN")
     if c.get("travelState")=="unknown": reasons.append("TRAVEL_UNKNOWN")
     cadence=c.get("recurringCadence"); term=c.get("termMonths")
@@ -42,13 +47,16 @@ def map_pair(a,b,engine_result,comparison_date=None):
     freshness="UNKNOWN"
     if comparison_date is None:
         reasons.append("COMPARISON_DATE_MISSING")
+    elif "freshnessComparable" not in engine_result or engine_result.get("freshnessComparable") is None:
+        reasons.append("FRESHNESS_NOT_EVALUATED")
     elif engine_result.get("freshnessComparable") is False:
         freshness="STALE"; reasons.append("QUOTE_STALE")
     else:
         freshness="CURRENT"
     if not engine_result.get("costComparable",False) and not any(r in reasons for r in (
         "COST_AMOUNT_MISSING","AMOUNT_SEMANTICS_UNKNOWN","TAX_UNKNOWN","TRAVEL_UNKNOWN",
-        "IRREGULAR_RECURRING_TERM","COMPARISON_DATE_MISSING","QUOTE_STALE")):
+        "IRREGULAR_RECURRING_TERM","COMPARISON_DATE_MISSING","QUOTE_STALE",
+        "SETUP_AMOUNT_MISSING","RECURRING_AMOUNT_MISSING","FRESHNESS_NOT_EVALUATED")):
         reasons.append("COMMERCIAL_TERMS_INCOMPLETE")
     reasons=list(dict.fromkeys(reasons))
     prompts=[PROMPTS[r] for r in reasons if r in PROMPTS]
