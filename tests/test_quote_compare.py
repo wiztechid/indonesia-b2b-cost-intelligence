@@ -131,5 +131,14 @@ class QuoteEngineTests(unittest.TestCase):
         self.assertFalse(r["costComparable"])
         self.assertFalse(r["freshnessComparable"])
 
+    def test_missing_comparison_date_blocks_current_cost(self):
+        a,b=quote("A","v1",total=100),quote("B","v2",total=200)
+        for q in (a,b):
+            q["commercial"]["taxState"]="included"
+            q["commercial"]["travelState"]="not_applicable"
+        r=compare(a,b)
+        self.assertFalse(r["costComparable"])
+        self.assertIsNone(r["freshnessComparable"])
+
 if __name__=="__main__":
     unittest.main()
