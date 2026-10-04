@@ -61,7 +61,14 @@ def compare(a,b,comparison_date=None):
     )
     ca,cb=normalized_costs(a),normalized_costs(b)
     commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
-    freshness_ok=None if comparison_date is None else pair_freshness(a,b,comparison_date)
+    if comparison_date is None:
+        freshness_ok=None
+    else:
+        validities=(a.get("validUntil"),b.get("validUntil"))
+        if None in validities:
+            freshness_ok=None
+        else:
+            freshness_ok=all(valid >= comparison_date for valid in validities)
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,
