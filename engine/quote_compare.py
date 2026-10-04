@@ -61,7 +61,7 @@ def compare(a,b,comparison_date=None):
     )
     ca,cb=normalized_costs(a),normalized_costs(b)
     commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
-    freshness_ok=None if comparison_date is None else (not is_stale(a,comparison_date) and not is_stale(b,comparison_date))
+    freshness_ok=None if comparison_date is None else pair_freshness(a,b,comparison_date)
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,
