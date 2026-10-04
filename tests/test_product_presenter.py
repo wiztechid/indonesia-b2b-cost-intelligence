@@ -22,7 +22,7 @@ class PresenterTests(unittest.TestCase):
         self.assertEqual(view["costState"],"COMPARABLE")
         self.assertEqual(view["costs"],[12000000,12000000])
 
-    def test_cross_currency_engine_true_still_hides_numbers(self):
+    def test_cross_currency_is_blocked_and_hides_numbers(self):
         fx1={"targetCurrency":"IDR","rate":1,"rateDate":"2026-10-04","source":"ref"}
         fx2={"targetCurrency":"IDR","rate":16000,"rateDate":"2026-10-04","source":"ref"}
         a=complete(quote("A","v1",currency="IDR",fx=fx1))
