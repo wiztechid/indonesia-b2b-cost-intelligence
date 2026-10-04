@@ -45,5 +45,18 @@ class RuntimeAdapterTests(unittest.TestCase):
         self.assertIsNone(pair["costs"])
         self.assertIsNone(pair["annualizedRunRates"])
 
+    def test_non_object_quote_is_invalid_quote_not_internal_error(self):
+        result=compare_request({"comparisonDate":"2026-10-04","quotes":[None,complete(quote("B","v2"))]})
+        self.assertEqual(result["error"]["code"],"INVALID_QUOTE")
+
+    def test_malformed_quote_id_is_invalid_quote(self):
+        bad=complete(quote("A","v1")); bad["quoteId"]=""
+        result=compare_request({"comparisonDate":"2026-10-04","quotes":[bad,complete(quote("B","v2"))]})
+        self.assertEqual(result["error"]["code"],"INVALID_QUOTE")
+
+    def test_same_request_produces_same_response(self):
+        payload={"comparisonDate":"2026-10-04","quotes":[complete(quote("A","v1")),complete(quote("B","v2"))]}
+        self.assertEqual(compare_request(payload),compare_request(payload))
+
 if __name__=="__main__":
     unittest.main()
