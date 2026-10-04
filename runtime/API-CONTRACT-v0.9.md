@@ -5,7 +5,7 @@ Expose the frozen comparison product through a transport-neutral runtime boundar
 
 ## Request
 A comparison request contains exactly:
-- `comparisonDate`: ISO date string, nullable. Null is permitted but must fail closed for current-cost comparison.
+- `comparisonDate`: optional ISO date string. Omitted or null is permitted but must fail closed for current-cost comparison.
 - `quotes`: array of 2–5 canonical Quote Record objects.
 
 Unknown top-level request fields are rejected.
