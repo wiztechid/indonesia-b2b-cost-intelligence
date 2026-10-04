@@ -73,42 +73,17 @@ def compare(a,b,comparison_date=None):
     }
 
 
-def is_stale(q, comparison_date):
+def quote_freshness(q, comparison_date):
     valid=q.get("validUntil")
-    return valid is not None and valid < comparison_date
+    if valid is None: return None
+    return valid >= comparison_date
 
-def provider_independent(a,b):
-    return a.get("providerKey") != b.get("providerKey")
+def pair_freshness(a,b,comparison_date):
+    states=(quote_freshness(a,comparison_date),quote_freshness(b,comparison_date))
+    if False in states: return False
+    if None in states: return None
+    return True
 
-def same_revision(a,b):
-    ra=a.get("evidenceRevisionId")
-    rb=b.get("evidenceRevisionId")
-    return ra is not None and ra==rb
+def is_stale(q, comparison_date):
+    return quote_freshness(q,comparison_date) is False
 
-def fx_amount(amount, source_currency, fx):
-    if amount is None: return None
-    if fx is None: return amount
-    target=fx["targetCurrency"]
-    if source_currency==target:
-        return amount
-    if not fx.get("source") or not fx.get("rateDate") or not fx.get("rate"):
-        return None
-    return amount*fx["rate"]
-
-
-def commercial_disclosure(q):
-    return q.get("commercialRelationship","unknown")
-
-def commercial_terms_complete(q):
-    c=q["commercial"]
-    return c.get("taxState") not in (None,"unknown") and c.get("travelState") not in (None,"unknown")
-
-def comparable_cost_allowed(q):
-    return normalized_total(q) is not None and commercial_terms_complete(q)
-
-def component_cost(bundle, component):
-    components=bundle.get("componentPrices") or {}
-    return components.get(component)
-
-def bundled_component_separable(bundle, component):
-    return component_cost(bundle, component) is not None
