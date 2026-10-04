@@ -1,5 +1,5 @@
 import unittest
-from engine.quote_compare import normalized_total, normalized_costs, compare, is_stale, provider_independent, same_revision, fx_amount
+from engine.quote_compare import normalized_total, normalized_costs, compare, is_stale, provider_independent, same_revision, fx_amount, commercial_disclosure, commercial_terms_complete, comparable_cost_allowed, component_cost, bundled_component_separable
 from tests.fixtures.quotes import quote
 
 class QuoteEngineTests(unittest.TestCase):
@@ -72,6 +72,34 @@ class QuoteEngineTests(unittest.TestCase):
         converted=fx_amount(100,"USD",fx)
         self.assertEqual(converted,1700000)
         self.assertEqual(fx_amount(converted,"IDR",fx),1700000)
+
+    def test_unknown_tax_blocks_cost_comparison(self):
+        q=quote("A","v1",total=100)
+        q["commercial"]["taxState"]="unknown"
+        q["commercial"]["travelState"]="included"
+        self.assertFalse(comparable_cost_allowed(q))
+
+    def test_known_tax_and_travel_allow_cost(self):
+        q=quote("A","v1",total=100)
+        q["commercial"]["taxState"]="included"
+        q["commercial"]["travelState"]="not_applicable"
+        self.assertTrue(comparable_cost_allowed(q))
+
+    def test_commercial_relationship_is_disclosure_only(self):
+        q=quote("A","v1")
+        q["commercialRelationship"]="affiliate"
+        self.assertEqual(commercial_disclosure(q),"affiliate")
+        self.assertEqual(normalized_total(q),12000000)
+
+    def test_bundle_component_not_invented(self):
+        bundle={"componentPrices":None}
+        self.assertIsNone(component_cost(bundle,"pentest"))
+        self.assertFalse(bundled_component_separable(bundle,"pentest"))
+
+    def test_bundle_component_separable_only_when_explicit(self):
+        bundle={"componentPrices":{"pentest":5000000}}
+        self.assertEqual(component_cost(bundle,"pentest"),5000000)
+        self.assertTrue(bundled_component_separable(bundle,"pentest"))
 
 if __name__=="__main__":
     unittest.main()
