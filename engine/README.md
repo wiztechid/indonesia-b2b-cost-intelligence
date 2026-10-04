@@ -2,23 +2,21 @@
 
 Deterministic reference model for the v0.5 contract. This is not a production pricing engine.
 
-## Executable now
-- all-in total is not double-counted
-- contract commitment cost is distinct from annualized recurring run-rate
-- irregular recurring terms fail closed
-- unknown amount semantics blocks derived total
-- explicit empty scope remains empty and yields INSUFFICIENT_DATA
-- different service types are NON_COMPARABLE
-- no common deliverables are NON_COMPARABLE
-- scope or quantity-limit differences are PARTIALLY_COMPARABLE
-- pairwise state and cost-comparability flags are symmetric
+## Executable coverage
+- double-count protection via amount semantics
+- contract commitment vs annualized run-rate separation
+- irregular recurring-term fail-closed behavior
+- empty/no-common scope handling
+- service-type and quantity-limit comparability
+- pairwise state/cost symmetry
+- quote staleness
+- provider independence and evidence-revision identity
+- FX provenance and same-currency idempotence
+- tax/travel completeness gate on pairwise cost comparison
+- commercial relationship as disclosure only
+- bundled component price only when explicitly supplied
 
-## Still blocked before freeze
-- expiry/staleness
-- evidence revision lineage and provider independence
-- commercial-relationship handling
-- FX conversion/provenance/idempotence
-- tax/travel/add-on presentation
-- bundled-component handling
+## Freeze boundary
+v0.6 is a deterministic reference model, not production pricing and not a vendor-ranking system. Public UI must not infer missing costs, legal compliance, service quality, or a universal winner.
 
-Freeze condition: remaining v0.5 invariants must become executable before any public comparison UI.
+Status: READY FOR FREEZE after PR audit/merge.
