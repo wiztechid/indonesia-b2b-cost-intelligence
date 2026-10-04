@@ -118,5 +118,17 @@ class ProductMapperTests(unittest.TestCase):
         self.assertEqual(component_price(q,"pentest"),5000000)
         self.assertIsNone(component_separation_reason(q,"pentest"))
 
+    def test_cross_currency_complete_fx_still_blocks_until_applied(self):
+        fx_idr={"targetCurrency":"IDR","rate":1,"rateDate":"2026-10-04","source":"reference"}
+        fx_usd={"targetCurrency":"IDR","rate":16000,"rateDate":"2026-10-04","source":"reference"}
+        a=complete(quote("A","v1",currency="IDR",fx=fx_idr))
+        b=complete(quote("B","v2",currency="USD",fx=fx_usd))
+        engine=compare(a,b,"2026-10-04")
+        self.assertTrue(engine["costComparable"])
+        out=map_pair(a,b,engine,"2026-10-04")
+        self.assertIn("CROSS_CURRENCY_NORMALIZATION_NOT_APPLIED",out["reasonCodes"])
+        self.assertEqual(out["costState"],"BLOCKED")
+        self.assertTrue(out["suppressPairwiseNumbers"])
+
 if __name__=="__main__":
     unittest.main()
