@@ -55,11 +55,12 @@ def compare(a,b):
         return {"state":"NON_COMPARABLE","reason":"no_common_deliverables"}
     same_scope=ai==bi and a["scope"]["quantityLimits"]==b["scope"]["quantityLimits"]
     ca,cb=normalized_costs(a),normalized_costs(b)
+    commercial_ok=commercial_terms_complete(a) and commercial_terms_complete(b)
     state="COMPARABLE" if same_scope else "PARTIALLY_COMPARABLE"
     return {
         "state":state,
         "commonDeliverables":sorted(common),
-        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None,
+        "costComparable":ca["contractCost"] is not None and cb["contractCost"] is not None and commercial_ok,
         "contractCosts":[ca["contractCost"],cb["contractCost"]],
         "annualizedRunRates":[ca["annualizedRunRate"],cb["annualizedRunRate"]]
     }
