@@ -86,12 +86,19 @@ def map_pair(a,b,engine_result,comparison_date=None):
         "FX_PROVENANCE_MISSING","CROSS_CURRENCY_NORMALIZATION_NOT_APPLIED")):
         reasons.append("COMMERCIAL_TERMS_INCOMPLETE")
     reasons=list(dict.fromkeys(reasons))
+    product_blockers={
+      "COST_AMOUNT_MISSING","AMOUNT_SEMANTICS_UNKNOWN","TAX_UNKNOWN","TRAVEL_UNKNOWN",
+      "IRREGULAR_RECURRING_TERM","COMPARISON_DATE_MISSING","QUOTE_STALE",
+      "SETUP_AMOUNT_MISSING","RECURRING_AMOUNT_MISSING","FRESHNESS_NOT_EVALUATED",
+      "FX_PROVENANCE_MISSING","CROSS_CURRENCY_NORMALIZATION_NOT_APPLIED"
+    }
+    product_cost_allowed=bool(engine_result.get("costComparable")) and not any(r in product_blockers for r in reasons)
     prompts=[PROMPTS[r] for r in reasons if r in PROMPTS]
     return {
       "scopeState":engine_result["state"],
-      "costState":"COMPARABLE" if engine_result.get("costComparable") else "BLOCKED",
+      "costState":"COMPARABLE" if product_cost_allowed else "BLOCKED",
       "freshnessState":freshness,
       "reasonCodes":reasons,
-      "suppressPairwiseNumbers":not engine_result.get("costComparable",False),
+      "suppressPairwiseNumbers":not product_cost_allowed,
       "missingInformationPrompts":prompts
     }
