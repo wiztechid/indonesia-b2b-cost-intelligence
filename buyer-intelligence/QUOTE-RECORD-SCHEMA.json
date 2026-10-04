@@ -54,7 +54,8 @@
         "setupAmount",
         "recurringAmount",
         "recurringCadence",
-        "termMonths"
+        "termMonths",
+        "amountSemantics"
       ],
       "properties": {
         "totalAmount": {
@@ -109,6 +110,15 @@
             "null"
           ],
           "minimum": 1
+        },
+        "amountSemantics": {
+          "enum": [
+            "total_is_all_in",
+            "total_excludes_setup",
+            "total_excludes_recurring",
+            "components_only",
+            "unknown"
+          ]
         }
       },
       "additionalProperties": false
@@ -127,13 +137,16 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "minItems": 1,
+          "uniqueItems": true
         },
         "deliverablesExcluded": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "uniqueItems": true
         },
         "quantityLimits": {
           "type": "object",
@@ -164,7 +177,8 @@
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "uniqueItems": true
         }
       },
       "additionalProperties": false
