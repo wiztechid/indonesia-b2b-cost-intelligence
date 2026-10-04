@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PDP Vendor Quote Record",
+  "type": "object",
+  "required": [
+    "quoteId",
+    "providerKey",
+    "serviceType",
+    "quoteDate",
+    "currency",
+    "commercial",
+    "scope",
+    "evidenceRevisionId",
+    "commercialRelationship"
+  ],
+  "properties": {
+    "quoteId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "providerKey": {
+      "type": "string",
+      "minLength": 1
+    },
+    "serviceType": {
+      "enum": [
+        "dpo_service",
+        "dpia",
+        "gap_assessment",
+        "privacy_audit"
+      ]
+    },
+    "quoteDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "validUntil": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "currency": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "commercial": {
+      "type": "object",
+      "required": [
+        "totalAmount",
+        "taxState",
+        "travelState",
+        "setupAmount",
+        "recurringAmount",
+        "recurringCadence",
+        "termMonths",
+        "amountSemantics"
+      ],
+      "properties": {
+        "totalAmount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "taxState": {
+          "enum": [
+            "included",
+            "excluded",
+            "unknown"
+          ]
+        },
+        "travelState": {
+          "enum": [
+            "included",
+            "excluded",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "setupAmount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "recurringAmount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "recurringCadence": {
+          "enum": [
+            "monthly",
+            "quarterly",
+            "annual",
+            "project",
+            "none",
+            "unknown"
+          ]
+        },
+        "termMonths": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "amountSemantics": {
+          "enum": [
+            "total_is_all_in",
+            "total_excludes_setup",
+            "total_excludes_recurring",
+            "components_only",
+            "unknown"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "deliverablesIncluded",
+        "deliverablesExcluded",
+        "quantityLimits",
+        "sla",
+        "assumptions"
+      ],
+      "properties": {
+        "deliverablesIncluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "deliverablesExcluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "quantityLimits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "sla": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidenceRevisionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commercialRelationship": {
+      "enum": [
+        "none",
+        "affiliate",
+        "sponsor",
+        "lead_partner",
+        "unknown"
+      ]
+    },
+    "fxNormalization": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "targetCurrency",
+        "rate",
+        "rateDate",
+        "source"
+      ],
+      "properties": {
+        "targetCurrency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "rate": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rateDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
