@@ -130,5 +130,18 @@ class ProductMapperTests(unittest.TestCase):
         self.assertEqual(out["costState"],"BLOCKED")
         self.assertTrue(out["suppressPairwiseNumbers"])
 
+    def test_same_provider_is_disclosure_not_cost_blocker(self):
+        a,b=complete(quote("A","v1")),complete(quote("B","v1"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("SAME_PROVIDER",out["reasonCodes"])
+        self.assertEqual(out["costState"],"COMPARABLE")
+
+    def test_same_revision_is_disclosure_not_cost_blocker(self):
+        a=complete(quote("A","v1",revision="r1"))
+        b=complete(quote("B","v2",revision="r1"))
+        out=map_pair(a,b,compare(a,b,"2026-10-04"),"2026-10-04")
+        self.assertIn("SAME_EVIDENCE_REVISION",out["reasonCodes"])
+        self.assertEqual(out["costState"],"COMPARABLE")
+
 if __name__=="__main__":
     unittest.main()
