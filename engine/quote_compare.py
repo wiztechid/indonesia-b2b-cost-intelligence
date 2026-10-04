@@ -63,3 +63,26 @@ def compare(a,b):
         "contractCosts":[ca["contractCost"],cb["contractCost"]],
         "annualizedRunRates":[ca["annualizedRunRate"],cb["annualizedRunRate"]]
     }
+
+
+def is_stale(q, comparison_date):
+    valid=q.get("validUntil")
+    return valid is not None and valid < comparison_date
+
+def provider_independent(a,b):
+    return a.get("providerKey") != b.get("providerKey")
+
+def same_revision(a,b):
+    ra=a.get("evidenceRevisionId")
+    rb=b.get("evidenceRevisionId")
+    return ra is not None and ra==rb
+
+def fx_amount(amount, source_currency, fx):
+    if amount is None: return None
+    if fx is None: return amount
+    target=fx["targetCurrency"]
+    if source_currency==target:
+        return amount
+    if not fx.get("source") or not fx.get("rateDate") or not fx.get("rate"):
+        return None
+    return amount*fx["rate"]
